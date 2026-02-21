@@ -1,0 +1,48 @@
+name: Toggle AdGuard Rules
+
+on:
+  schedule:
+    # 06:00 Phnom Penh (UTC+7) = 23:00 UTC
+    - cron: "20,30,40,50 23 * * *"
+
+    # 22:00 Phnom Penh (UTC+7) = 15:00 UTC
+    - cron: "20,30,40,50 15 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  toggle:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Toggle rules based on time
+        run: |
+          FILE="rules.txt"
+          HOUR=$(date -u +"%H")
+          MIN=$(date -u +"%M")
+
+          echo "UTC time: $HOUR:$MIN"
+
+          if [ "$HOUR" = "23" ] && [ "$MIN" -ge 20 ]; then
+            echo "Allowing sites (morning mode)"
+            sed -i 's/^||kisskh\.\^/!||kisskh.^/' "$FILE"
+            sed -i 's/^||sub\.streamsub\.\^/!||sub.streamsub.^/' "$FILE"
+
+          elif [ "$HOUR" = "15" ] && [ "$MIN" -ge 20 ]; then
+            echo "Blocking sites (night mode)"
+            sed -i 's/^!||kisskh\.\^/||kisskh.^/' "$FILE"
+            sed -i 's/^!||sub\.streamsub\.\^/||sub.streamsub.^/' "$FILE"
+          fi
+
+      - name: Commit changes if needed
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add rules.txt
+          git diff --cached --quiet || git commit -m "Auto toggle streaming block"
+          git push
