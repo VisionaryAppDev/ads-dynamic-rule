@@ -2,11 +2,11 @@ name: Toggle AdGuard Rules
 
 on:
   schedule:
-    # 06:00 Phnom Penh (UTC+7) = 23:00 UTC
+    # 06:xx Phnom Penh (UTC+7) = 23:00 UTC
     - cron: "20,30,40,50 23 * * *"
 
-    # 22:00 Phnom Penh (UTC+7) = 15:00 UTC
-    - cron: "20,30,40,50 15 * * *"
+    # 22:xx Phnom Penh (UTC+7) = 15:00 UTC
+    - cron: "10, 20,30,40,50 15 * * *"
   workflow_dispatch:
 
 permissions:
@@ -29,13 +29,13 @@ jobs:
           echo "UTC time: $HOUR:$MIN"
 
           # Time range between 06:20 and 22:19 UTC
-          if [ "$HOUR" -ge 6 ] && [ "$HOUR" -lt 22 ] || ([ "$HOUR" -eq 22 ] && [ "$MIN" -lt 20 ]); then
+          if [ "$HOUR" -ge 6 ] && [ "$HOUR" -lt 22 ] || ([ "$HOUR" -eq 22 ] && [ "$MIN" -lt 10 ]); then
             echo "Allowing sites (morning mode)"
             sed -i 's/^!*\(@@\)\{0,1\}||kisskh\.\^/@@||kisskh.^/' "$FILE"
             sed -i 's/^!*\(@@\)\{0,1\}||sub\.streamsub\.\^/@@||sub.streamsub.^/' "$FILE"
 
 
-          # Time range between 22:20 and 06:19 UTC
+          # Time range between 22:10 and 06:19 UTC
           else
             echo "Blocking sites (night mode)"
             sed -i 's/^!*\(@@\)\{0,1\}||kisskh\.\^/!||kisskh.^/' "$FILE"
