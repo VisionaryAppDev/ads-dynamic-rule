@@ -28,12 +28,15 @@ jobs:
 
           echo "UTC time: $HOUR:$MIN"
 
-          if [ "$HOUR" = "23" ] && [ "$MIN" -ge 20 ]; then
+          # Time range between 06:20 and 22:19 UTC
+          if [ "$HOUR" -ge 6 ] && [ "$HOUR" -lt 22 ] || ([ "$HOUR" -eq 22 ] && [ "$MIN" -lt 20 ]); then
             echo "Allowing sites (morning mode)"
             sed -i 's/^||kisskh\.\^/!||kisskh.^/' "$FILE"
             sed -i 's/^||sub\.streamsub\.\^/!||sub.streamsub.^/' "$FILE"
 
-          elif [ "$HOUR" = "15" ] && [ "$MIN" -ge 20 ]; then
+
+          # Time range between 22:20 and 06:19 UTC
+          else
             echo "Blocking sites (night mode)"
             sed -i 's/^!||kisskh\.\^/||kisskh.^/' "$FILE"
             sed -i 's/^!||sub\.streamsub\.\^/||sub.streamsub.^/' "$FILE"
