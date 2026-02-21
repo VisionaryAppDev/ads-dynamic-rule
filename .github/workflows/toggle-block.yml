@@ -6,7 +6,7 @@ on:
     - cron: "20,30,40,50 23 * * *"
 
     # 22:xx Phnom Penh (UTC+7) = 15:00 UTC
-    - cron: "10, 20,30,40,50 15 * * *"
+    - cron: "10,20,30,40,50 15 * * *"
   workflow_dispatch:
 
 permissions:
